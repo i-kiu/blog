@@ -148,7 +148,11 @@ class PostController extends ActionController
      */
     public function listRecentPostsAction(): void
     {
-        $maximumItems = (int) ($this->settings['lists']['posts']['maximumDisplayedItems'] ?? 0);
+        if((int) $this->settings['blogPosts']['limit'] >0){
+            $maximumItems = (int) $this->settings['blogPosts']['limit'];
+        }else {
+            $maximumItems = (int)($this->settings['lists']['posts']['maximumDisplayedItems'] ?? 0);
+        }
         $posts = (0 === $maximumItems)
             ? $this->postRepository->findAll()
             : $this->postRepository->findAllWithLimit($maximumItems);
@@ -228,9 +232,16 @@ class PostController extends ActionController
                 $category = $categories->getFirst();
             }
         }
-
         if ($category) {
-            $posts = $this->postRepository->findAllByCategory($category);
+            if((int) $this->settings['categoriePosts']['limit'] >0){
+                $maximumItems = (int) $this->settings['categoriePosts']['limit'];
+            }else {
+                $maximumItems = (int)($this->settings['lists']['posts']['maximumDisplayedItems'] ?? 0);
+            }
+            $posts = (0 === $maximumItems)
+                ? $this->postRepository->findAllByCategory($category)
+                : $this->postRepository->findAllByCategoryByLimit($category,$maximumItems);
+
             $this->view->assign('type', 'bycategory');
             $this->view->assign('posts', $posts);
             $this->view->assign('category', $category);

@@ -166,6 +166,22 @@ class PostRepository extends Repository
      */
     public function findAllByCategory(Category $category)
     {
+        return $this->findAllByCategoryQuery($category)->execute();
+    }
+
+    public function findAllByCategoryByLimit(Category $category, int $limit)
+    {
+        return $this->findAllByCategoryQuery($category)->setLimit($limit)->execute();
+    }
+
+    /**
+     * @param Category $category
+     * @return QueryInterface
+     * @throws \TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException
+     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\InvalidQueryException
+     */
+    public function findAllByCategoryQuery(Category $category)
+    {
         $query = $this->createQuery();
         $constraints = $this->defaultConstraints;
         $constraints[] = $query->contains('categories', $category);
@@ -174,7 +190,7 @@ class PostRepository extends Repository
             $constraints[] = $storagePidConstraint;
         }
 
-        return $query->matching($query->logicalAnd($constraints))->execute();
+        return $query->matching($query->logicalAnd($constraints));
     }
 
     /**

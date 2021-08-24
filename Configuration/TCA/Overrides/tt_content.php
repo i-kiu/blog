@@ -17,6 +17,13 @@ if (!defined('TYPO3_MODE')) {
     'LLL:EXT:blog/Resources/Private/Language/locallang_db.xlf:plugin.blog_posts.title',
     'plugin-blog-posts'
 );
+
+$GLOBALS['TCA']['tt_content']['types']['list']['subtypes_addlist']['blog_posts'] = 'pi_flexform';
+\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPiFlexFormValue(
+    'blog_posts',
+    'FILE:EXT:blog/Configuration/FlexForms/BlogPosts.xml'
+);
+
 $GLOBALS['TCA']['tt_content']['types']['list']['subtypes_excludelist']['blog_posts'] = 'select_key';
 
 \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerPlugin(
@@ -25,6 +32,7 @@ $GLOBALS['TCA']['tt_content']['types']['list']['subtypes_excludelist']['blog_pos
     'LLL:EXT:blog/Resources/Private/Language/locallang_db.xlf:plugin.blog_latestposts.title',
     'plugin-blog-posts'
 );
+
 $GLOBALS['TCA']['tt_content']['types']['list']['subtypes_addlist']['blog_latestposts'] = 'pi_flexform';
 \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPiFlexFormValue(
     'blog_latestposts',
@@ -36,6 +44,12 @@ $GLOBALS['TCA']['tt_content']['types']['list']['subtypes_addlist']['blog_latestp
     'Category',
     'LLL:EXT:blog/Resources/Private/Language/locallang_db.xlf:plugin.blog_category.title',
     'plugin-blog-category'
+);
+
+$GLOBALS['TCA']['tt_content']['types']['list']['subtypes_addlist']['blog_category'] = 'pi_flexform';
+\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPiFlexFormValue(
+    'blog_category',
+    'FILE:EXT:blog/Configuration/FlexForms/CategoriePosts.xml'
 );
 $GLOBALS['TCA']['tt_content']['types']['list']['subtypes_excludelist']['blog_category'] = 'select_key';
 
