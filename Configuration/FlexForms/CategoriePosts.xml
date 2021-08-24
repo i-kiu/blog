@@ -19,6 +19,16 @@
                             </config>
                         </TCEforms>
                     </settings.categoriePosts.limit>
+                    <settings.categoriePosts.overwriteMetatags>
+                        <TCEforms>
+                            <label>Meta Tags mit Kategorie Eigenschaften überschreiben</label>
+                            <config>
+                                <type>check</type>
+                                <renderType>checkboxToggle</renderType>
+                                <default>0</default>
+                            </config>
+                        </TCEforms>
+                    </settings.categoriePosts.overwriteMetatags>
                 </el>
             </ROOT>
         </sDEF>

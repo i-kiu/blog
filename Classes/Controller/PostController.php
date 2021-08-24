@@ -245,8 +245,10 @@ class PostController extends ActionController
             $this->view->assign('type', 'bycategory');
             $this->view->assign('posts', $posts);
             $this->view->assign('category', $category);
-            MetaTagService::set(MetaTagService::META_TITLE, (string) $category->getTitle());
-            MetaTagService::set(MetaTagService::META_DESCRIPTION, (string) $category->getDescription());
+            if((int) $this->settings['categoriePosts']['overwriteMetatags'] >0) {
+                MetaTagService::set(MetaTagService::META_TITLE, (string)$category->getTitle());
+                MetaTagService::set(MetaTagService::META_DESCRIPTION, (string)$category->getDescription());
+            }
         } else {
             $this->view->assign('categories', $this->categoryRepository->findAll());
         }
