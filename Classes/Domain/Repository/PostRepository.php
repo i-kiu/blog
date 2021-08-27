@@ -17,6 +17,7 @@ use T3G\AgencyPack\Blog\Domain\Model\Category;
 use T3G\AgencyPack\Blog\Domain\Model\Post;
 use T3G\AgencyPack\Blog\Domain\Model\Tag;
 use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Database\QueryGenerator;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -164,12 +165,12 @@ class PostRepository extends Repository
      * @throws \TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException
      * @throws \TYPO3\CMS\Extbase\Persistence\Exception\InvalidQueryException
      */
-    public function findAllByCategory(Category $category)
+    public function findAllByCategory($category)
     {
         return $this->findAllByCategoryQuery($category)->execute();
     }
 
-    public function findAllByCategoryByLimit(Category $category, int $limit)
+    public function findAllByCategoryByLimit($category, int $limit)
     {
         return $this->findAllByCategoryQuery($category)->setLimit($limit)->execute();
     }
@@ -180,7 +181,7 @@ class PostRepository extends Repository
      * @throws \TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException
      * @throws \TYPO3\CMS\Extbase\Persistence\Exception\InvalidQueryException
      */
-    public function findAllByCategoryQuery(Category $category)
+    public function findAllByCategoryQuery($category)
     {
         $query = $this->createQuery();
         $constraints = $this->defaultConstraints;
@@ -189,7 +190,6 @@ class PostRepository extends Repository
         if ($storagePidConstraint instanceof ComparisonInterface) {
             $constraints[] = $storagePidConstraint;
         }
-
         return $query->matching($query->logicalAnd($constraints));
     }
 
@@ -433,7 +433,37 @@ class PostRepository extends Repository
         $configurationManager = $this->objectManager->get(ConfigurationManager::class);
         $settings = $configurationManager->getConfiguration(ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK);
 
-        return GeneralUtility::intExplode(',', $settings['persistence']['storagePid']);
+       return GeneralUtility::intExplode(',',  $this->extendPidListByChildren($settings['persistence']['storagePid'],9999));
+    }
+
+    /**
+     * Find all ids from given ids and level
+     *
+     * @param string $pidList comma separated list of ids
+     * @param int $recursive recursive levels
+     * @return string comma separated list of ids
+     */
+    public static function extendPidListByChildren($pidList = '', $recursive = 0)
+    {
+        $recursive = (int)$recursive;
+        if ($recursive <= 0) {
+            return $pidList;
+        }
+
+        $queryGenerator = GeneralUtility::makeInstance(QueryGenerator::class);
+        $recursiveStoragePids = $pidList;
+        $storagePids = GeneralUtility::intExplode(',', $pidList);
+        foreach ($storagePids as $startPid) {
+            if ($startPid >= 0) {
+                $pids = $queryGenerator->getTreeList($startPid, $recursive);
+                if (strlen($pids) > 0) {
+                    $recursiveStoragePids .= ',' . $pids;
+                }
+            }
+        }
+
+
+        return GeneralUtility::uniqueList($recursiveStoragePids);
     }
 
     /**
@@ -445,6 +475,7 @@ class PostRepository extends Repository
     {
         if (TYPO3_MODE === 'FE') {
             $pids = $this->getPidsForConstraints();
+           // debug($pids,'getPidsForConstraints');
             $query = $this->createQuery();
             return $query->in('pid', $pids);
         }
@@ -461,7 +492,6 @@ class PostRepository extends Repository
         $pids = array_filter($this->getStoragePidsFromTypoScript(), function ($v) {
             return !empty($v);
         });
-
         if (\count($pids) === 0) {
             $rootLine = GeneralUtility::makeInstance(RootlineUtility::class, $this->getTypoScriptFrontendController()->id)->get();
             foreach ($rootLine as $value) {

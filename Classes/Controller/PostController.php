@@ -239,9 +239,8 @@ class PostController extends ActionController
                 $maximumItems = (int)($this->settings['lists']['posts']['maximumDisplayedItems'] ?? 0);
             }
             $posts = (0 === $maximumItems)
-                ? $this->postRepository->findAllByCategory($category)
-                : $this->postRepository->findAllByCategoryByLimit($category,$maximumItems);
-
+                ? $this->postRepository->findAllByCategory($categories)
+                : $this->postRepository->findAllByCategoryByLimit($categories,$maximumItems);
             $this->view->assign('type', 'bycategory');
             $this->view->assign('posts', $posts);
             $this->view->assign('category', $category);
