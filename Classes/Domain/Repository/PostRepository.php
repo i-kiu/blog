@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 /*
  * This file is part of the package t3g/blog.
@@ -172,7 +173,11 @@ class PostRepository extends Repository
 
     public function findAllByCategoryByLimit($category, int $limit)
     {
-        return $this->findAllByCategoryQuery($category)->setLimit($limit)->execute();
+        $query= $this->findAllByCategoryQuery($category)->setLimit($limit);
+        //$queryParser = $this->objectManager->get(\TYPO3\CMS\Extbase\Persistence\Generic\Storage\Typo3DbQueryParser::class);
+        //var_dump($queryParser->convertQueryToDoctrineQueryBuilder($query)->getSQL());
+        //\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($queryParser->convertQueryToDoctrineQueryBuilder($query)->getParameters());
+        return $query->execute();
     }
 
     /**
@@ -185,11 +190,17 @@ class PostRepository extends Repository
     {
         $query = $this->createQuery();
         $constraints = $this->defaultConstraints;
-        $constraints[] = $query->contains('categories', $category);
+        foreach ($category as $categories) {
+            $constraintsOr[] = $query->contains('categories', $categories);
+        }
+        if(count($constraintsOr)>0){
+            $constraints[] =$query->logicalOr($constraintsOr);
+        }
         $storagePidConstraint = $this->getStoragePidConstraint();
         if ($storagePidConstraint instanceof ComparisonInterface) {
             $constraints[] = $storagePidConstraint;
         }
+
         return $query->matching($query->logicalAnd($constraints));
     }
 
@@ -433,7 +444,7 @@ class PostRepository extends Repository
         $configurationManager = $this->objectManager->get(ConfigurationManager::class);
         $settings = $configurationManager->getConfiguration(ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK);
 
-       return GeneralUtility::intExplode(',',  $this->extendPidListByChildren($settings['persistence']['storagePid'],9999));
+        return GeneralUtility::intExplode(',', $this->extendPidListByChildren($settings['persistence']['storagePid'], 9999));
     }
 
     /**
@@ -462,12 +473,11 @@ class PostRepository extends Repository
             }
         }
 
-
         return GeneralUtility::uniqueList($recursiveStoragePids);
     }
 
     /**
-     * @return null|ComparisonInterface
+     * @return ComparisonInterface|null
      * @throws \TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException
      * @throws \TYPO3\CMS\Extbase\Persistence\Exception\InvalidQueryException
      */
@@ -475,7 +485,7 @@ class PostRepository extends Repository
     {
         if (TYPO3_MODE === 'FE') {
             $pids = $this->getPidsForConstraints();
-           // debug($pids,'getPidsForConstraints');
+            // debug($pids,'getPidsForConstraints');
             $query = $this->createQuery();
             return $query->in('pid', $pids);
         }
