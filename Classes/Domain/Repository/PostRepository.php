@@ -174,9 +174,10 @@ class PostRepository extends Repository
     public function findAllByCategoryByLimit($category, int $limit)
     {
         $query= $this->findAllByCategoryQuery($category)->setLimit($limit);
-        //$queryParser = $this->objectManager->get(\TYPO3\CMS\Extbase\Persistence\Generic\Storage\Typo3DbQueryParser::class);
-        //var_dump($queryParser->convertQueryToDoctrineQueryBuilder($query)->getSQL());
-        //\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($queryParser->convertQueryToDoctrineQueryBuilder($query)->getParameters());
+        $queryParser = $this->objectManager->get(\TYPO3\CMS\Extbase\Persistence\Generic\Storage\Typo3DbQueryParser::class);
+
+       // var_dump($queryParser->convertQueryToDoctrineQueryBuilder($query)->getSQL());
+        // \TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($queryParser->convertQueryToDoctrineQueryBuilder($query)->getParameters());
         return $query->execute();
     }
 
@@ -194,7 +195,7 @@ class PostRepository extends Repository
             $constraintsOr[] = $query->contains('categories', $categories);
         }
         if(count($constraintsOr)>0){
-            $constraints[] =$query->logicalOr($constraintsOr);
+            $constraints[] =$query->logicalAnd($constraintsOr);
         }
         $storagePidConstraint = $this->getStoragePidConstraint();
         if ($storagePidConstraint instanceof ComparisonInterface) {
