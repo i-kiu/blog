@@ -117,6 +117,13 @@ $GLOBALS['TCA']['tt_content']['types']['list']['subtypes_excludelist']['blog_com
 
 \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerPlugin(
     'T3G.AgencyPack.Blog',
+    'listauthors',
+    'Blog: Liste aller AutorInne mit Suchfeld',
+    'plugin-blog-authors'
+);
+
+\TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerPlugin(
+    'T3G.AgencyPack.Blog',
     'RelatedPosts',
     'LLL:EXT:blog/Resources/Private/Language/locallang_db.xlf:plugin.blog_relatedposts.title',
     'plugin-blog-relatedposts'

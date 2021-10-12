@@ -373,6 +373,15 @@ class PostController extends ActionController
         }
     }
 
+
+    public function listauthorsAction(): void
+    {
+        $authors =$this->authorRepository->findAll();
+        //\nn\t3::debug($authors);
+        $this->view->assign('authors', $authors);
+    }
+
+
     /**
      * Related posts action: show related posts based on the current post
      *
